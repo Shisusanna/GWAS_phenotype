@@ -12,7 +12,7 @@ navbar:
   right:
   - icon: fab fa-github
     text: Source code
-    href: https://github.com/Githubname/GWAS_phenotype
+    href: https://github.com/Shisusanna/GWAS_phenotype
 output:
   workflowr::wflow_html:
     toc: yes
