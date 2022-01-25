@@ -475,16 +475,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomShisusannaGWASphenotypetree1ab58583da8807ac53a795265970ef26ee3bb601targetblank1ab5858a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Shisusanna/GWAS_phenotype/tree/1ab58583da8807ac53a795265970ef26ee3bb601" target="_blank">1ab5858</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomShisusannaGWASphenotypetreee0623f733051deefc2d881125942311df84f7d44targetblanke0623f7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Shisusanna/GWAS_phenotype/tree/e0623f733051deefc2d881125942311df84f7d44" target="_blank">e0623f7</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomShisusannaGWASphenotypetree1ab58583da8807ac53a795265970ef26ee3bb601targetblank1ab5858a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomShisusannaGWASphenotypetreee0623f733051deefc2d881125942311df84f7d44targetblanke0623f7a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Shisusanna/GWAS_phenotype/tree/1ab58583da8807ac53a795265970ef26ee3bb601" target="_blank">1ab5858</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Shisusanna/GWAS_phenotype/tree/e0623f733051deefc2d881125942311df84f7d44" target="_blank">e0623f7</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -532,6 +532,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Shisusanna/GWAS_phenotype/e0623f733051deefc2d881125942311df84f7d44/docs/Phenotype_sequenced.html" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1336,6 +1353,43 @@ GWAS_seq_plot$Vaccines[GWAS_seq_plot[,c(&quot;F_enterprise&quot;)] == &quot;北�
 GWAS_seq_plot$NAb &lt;- as.numeric(GWAS_seq_plot$NAb)
 hist(GWAS_seq_plot$NAb)</code></pre>
 <p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-7-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>write.csv(GWAS_seq_plot,&quot;/home/shisusanna/data_process/data/GWAS_seq_plot.csv&quot;)</code></pre>
 <pre class="r"><code>GWAS_seq_plot &lt;- read.csv(&quot;/home/shisusanna/data_process/data/GWAS_seq_plot.csv&quot;)
 library(&quot;ggplot2&quot;)
@@ -1347,7 +1401,47 @@ library(&quot;dplyr&quot;)</code></pre>
 <pre class="r"><code>ggplot(GWAS_seq_plot, aes( x =NAb))+
   geom_histogram(aes(y = stat(density),)) +
   geom_density(color = &quot;#6baed6&quot;, size = 1)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-9-1.png" width="1440" style="display: block; margin: auto;" /> ## histogram of NAb</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-9-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-9-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="histogram-of-nab" class="section level2">
+<h2>histogram of NAb</h2>
 <pre class="r"><code>ggplot(GWAS_seq_plot, aes( x =inter_dose, y = NAb ) )+
   theme_minimal()+
   geom_point(size = 2) +
@@ -1359,7 +1453,47 @@ library(&quot;dplyr&quot;)</code></pre>
   stat_poly_eq(aes(label=paste(..eq.label..,..adj.rr.label..,..p.value.label..,sep = &quot;~~~~&quot;)),formula = y~x,parse=T,size=4)+
   xlab(&quot;两剂间隔（天）&quot;)+
   ggtitle(&quot;SARS-CoV-2 Neutralizing Antibody&quot;)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-10-1.png" width="1440" style="display: block; margin: auto;" /> ## correlation between NAb and inter_dose</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-10-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
+Past versions of unnamed-chunk-10-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-10-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="correlation-between-nab-and-inter_dose" class="section level2">
+<h2>correlation between NAb and inter_dose</h2>
 <pre class="r"><code>install.packages(&quot;viridisLite&quot;)
 library(viridis)
 install.packages</code></pre>
@@ -1987,7 +2121,7 @@ install.packages</code></pre>
         unlink(tmpd, TRUE)
     invisible()
 }
-&lt;bytecode: 0x558e2fa93b98&gt;
+&lt;bytecode: 0x5582a78a7f10&gt;
 &lt;environment: namespace:utils&gt;</code></pre>
 <pre class="r"><code>library(ggpointdensity)
 library(&quot;ggpubr&quot;)
@@ -1999,7 +2133,47 @@ ggplot(GWAS_seq_plot, mapping = aes(x =inter_dose, y = log2(NAb))) +
   stat_smooth(method = lm, formula = y~x,color = &quot;#756bb1&quot;, fill = &quot;#cbc9e2&quot;)+
   stat_poly_eq(aes(label=paste(..eq.label..,..adj.rr.label..,..p.value.label..,sep = &quot;~~~~&quot;)),formula = y~x,parse=T,size=4,label.y = &quot;bottom&quot;, label.x = &quot;right&quot;)+
   stat_cor(label.y=7.5,label.x=24,size=4)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-11-1.png" width="1440" style="display: block; margin: auto;" /> ## pointdensity of inter_dose and log2(NAb)</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-11-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-11-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="pointdensity-of-inter_dose-and-log2nab" class="section level2">
+<h2>pointdensity of inter_dose and log2(NAb)</h2>
 <pre class="r"><code>library(&quot;ggpubr&quot;)
 GWAS_seq_plot$NAbpass &lt;- factor(GWAS_seq_plot$NAbpass,levels = c(&quot;Negative&quot;,&quot;Positive&quot;))
 table(GWAS_seq_plot$NAbpass)</code></pre>
@@ -2015,7 +2189,47 @@ Negative Positive
   theme(text = element_text( color = &quot;black&quot;,size = 20), plot.title = element_text(hjust = 0.5) )+
   stat_poly_eq(aes(label=..eq.label..),formula = y~x,parse=T,size=4)+
   stat_cor(label.y=144,label.x=23,size=4)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-12-1.png" width="1440" style="display: block; margin: auto;" /> ## correlation between NAb and inter_time</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-12-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-12-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="correlation-between-nab-and-inter_time" class="section level2">
+<h2>correlation between NAb and inter_time</h2>
 <pre class="r"><code>cor=round(cor(GWAS_seq_plot$inter_time,GWAS_seq_plot$NAb),2)
 
 ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
@@ -2028,7 +2242,47 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   theme(text = element_text( color = &quot;black&quot;,size = 20), plot.title = element_text(hjust = 0.5) )+
   stat_poly_eq(aes(label=paste(&quot;italic(r)~`=`~&quot;,cor,sep = &quot;&quot;)),formula = y~x,parse=T,size=5,label.x = &quot;right&quot;,label.y = &quot;top&quot;)+
   stat_fit_glance(method = &quot;lm&quot;, method.args = list(formula = y~x),label.x = &quot;right&quot;,label.y = 0.02,aes(label = paste(&quot;italic(P)*\&quot;-value = \&quot;*&quot;,signif(..p.value.., digits = 2), sep = &quot;&quot;)), size = 5,parse = TRUE)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-13-1.png" width="1440" style="display: block; margin: auto;" /> ## scatter plot of inter_time and log2(NAb) with cor</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-13-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-13-1">
+Past versions of unnamed-chunk-13-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-13-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-13-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="scatter-plot-of-inter_time-and-log2nab-with-cor" class="section level2">
+<h2>scatter plot of inter_time and log2(NAb) with cor</h2>
 <pre class="r"><code>ggplot(GWAS_seq_plot, aes( x =age, y = NAb ) )+
   geom_point(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21) +
   geom_jitter(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21)+
@@ -2038,7 +2292,47 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   theme(text = element_text( color = &quot;black&quot;,size = 20), plot.title = element_text(hjust = 0.5) )+
   stat_poly_eq(aes(label=..eq.label..),formula = y~x,parse=T,size=3)+
   stat_cor(label.y=145,label.x=50,size=3)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-14-1.png" width="1440" style="display: block; margin: auto;" /> ## scatter plot of age and log2(NAb) with cor</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-14-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-14-1">
+Past versions of unnamed-chunk-14-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-14-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-14-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="scatter-plot-of-age-and-log2nab-with-cor" class="section level2">
+<h2>scatter plot of age and log2(NAb) with cor</h2>
 <pre class="r"><code>colnames(GWAS_seq_plot)</code></pre>
 <pre><code> [1] &quot;X.1&quot;          &quot;X&quot;            &quot;unique_num&quot;   &quot;tele_num&quot;     &quot;name&quot;        
  [6] &quot;ethnicity&quot;    &quot;sex&quot;          &quot;age&quot;          &quot;height&quot;       &quot;weight&quot;      
@@ -2055,6 +2349,43 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
   stat_cor(label.y=6.5,label.x=35,size=3)</code></pre>
 <p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-15-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-15-1">
+Past versions of unnamed-chunk-15-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-15-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-15-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>ggplot(GWAS_seq_plot, aes( x =BMI, y = log2(NAb) ) )+
   geom_point(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21) +
   geom_jitter(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21)+
@@ -2065,7 +2396,47 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
   stat_cor(label.y=6.5,label.x=35,size=3)+
   facet_grid(vars(agec),vars(sex))</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-15-2.png" width="1440" style="display: block; margin: auto;" /> ## correlation between NAb and BMI(facet with sex and age)</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-15-2.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-15-2">
+Past versions of unnamed-chunk-15-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-15-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-15-2.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="correlation-between-nab-and-bmifacet-with-sex-and-age" class="section level2">
+<h2>correlation between NAb and BMI(facet with sex and age)</h2>
 <pre class="r"><code>colnames(GWAS_seq_plot)</code></pre>
 <pre><code> [1] &quot;X.1&quot;          &quot;X&quot;            &quot;unique_num&quot;   &quot;tele_num&quot;     &quot;name&quot;        
  [6] &quot;ethnicity&quot;    &quot;sex&quot;          &quot;age&quot;          &quot;height&quot;       &quot;weight&quot;      
@@ -2082,6 +2453,43 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
   stat_cor(label.y=7,label.x=88,size=3)</code></pre>
 <p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-16-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-16-1">
+Past versions of unnamed-chunk-16-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-16-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-16-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>ggplot(GWAS_seq_plot, aes( x =weight, y = log2(NAb) ) )+
   geom_point(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21) +
   geom_jitter(size = 3, aes(fill =NAbpass),color = &quot;black&quot;,pch=21)+
@@ -2092,7 +2500,47 @@ ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
   facet_grid(vars(agec),vars(sex))+
   stat_cor(label.y=7,label.x=88,size=3)</code></pre>
-<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-16-2.png" width="1440" style="display: block; margin: auto;" /> ## correlation between NAb and weight(facet with sex and age)</p>
+<p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-16-2.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-16-2">
+Past versions of unnamed-chunk-16-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-16-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-16-2.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="correlation-between-nab-and-weightfacet-with-sex-and-age" class="section level2">
+<h2>correlation between NAb and weight(facet with sex and age)</h2>
 <pre class="r"><code>GWAS_seq_plot1 &lt;- GWAS_seq_plot[-which(is.na(GWAS_seq_plot$Vaccines)),]
 
 ggplot(GWAS_seq_plot1, aes( x =Vaccines, y = log2(NAb) ) )+
@@ -2102,6 +2550,43 @@ ggplot(GWAS_seq_plot1, aes( x =Vaccines, y = log2(NAb) ) )+
   scale_fill_aaas()+
   theme_minimal()</code></pre>
 <p><img src="figure/Phenotype_sequenced.Rmd/unnamed-chunk-17-1.png" width="1440" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-17-1">
+Past versions of unnamed-chunk-17-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-17-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Shisusanna/GWAS_phenotype/blob/e0623f733051deefc2d881125942311df84f7d44/docs/figure/Phenotype_sequenced.Rmd/unnamed-chunk-17-1.png" target="_blank">e0623f7</a>
+</td>
+<td>
+shisusanna
+</td>
+<td>
+2022-01-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
