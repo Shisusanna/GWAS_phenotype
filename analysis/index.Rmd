@@ -9,3 +9,7 @@ editor_options:
 ---
 
 Welcome to my research website.
+This website shows the analysis process of the phenotype data of a random large population after the full vaccination. I will share the latest analysis results here in real time, welcome everyone to discuss and put forward comments.
+
+[Phenotype_sequenced](Phenotype_sequenced.html)
+[Phenotype_population](Phenotype_population.html)

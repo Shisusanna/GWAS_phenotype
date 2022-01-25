@@ -1,0 +1,730 @@
+---
+title: "Phenotype_population"
+author: "shisusanna"
+date: "2022/1/15"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE)
+```
+
+
+```{r  recify merged data}
+GWAS_ALL <- read.csv("/home/shisusanna/GWAS/data/GWAS_ALL.csv")
+colnames(GWAS_ALL)
+
+# find the incorrect unique number information
+library("tidyfst")
+library("tidyr")
+library("dplyr")
+
+aa <- count_dt(GWAS_ALL,unique_num,.name = "count")
+bb <- select(GWAS_ALL ,2:3)
+bb<- unite(bb,"name-birth",c("unique_num","name"), sep="-", remove = F)
+cc <- distinct(bb)
+dd <- count_dt(cc,unique_num,.name = "count")
+
+# rectify the dataframe
+colnames(GWAS_ALL)
+GWAS_ALL[which(GWAS_ALL$unique_num == "GH21413"),]
+GWAS_ALL[which(GWAS_ALL$name == "陈忠明"),2]<- "GH23417"
+GWAS_ALL[which(GWAS_ALL$unique_num == "GH22540"),]
+GWAS_ALL[which(GWAS_ALL$name == "罗琼芳"),2] <- "GH23580"
+GWAS_ALL[which(GWAS_ALL$unique_num == "GH22510"),]
+GWAS_ALL[which(GWAS_ALL$name == "李朝艳"),2] <- "GH23514"
+GWAS_ALL[which(GWAS_ALL$unique_num == "GH23862"),]
+GWAS_ALL[which(GWAS_ALL$name == "周家莲"),2] <- "GH23832"
+GWAS_ALL[which(GWAS_ALL$unique_num == "G00760"),]
+GWAS_ALL[which(GWAS_ALL$name == "毛香"),2] <- "G00770"
+
+GWAS_ALL$dose_inter <- as.Date(GWAS_ALL$S_time)-as.Date(GWAS_ALL$F_time)
+table(GWAS_ALL$dose_inter)
+colnames(GWAS_ALL)
+
+GWAS_ALL[which(GWAS_ALL$name == "肖蓉"),16] <- "2021/5/30"
+GWAS_ALL[which(GWAS_ALL$name == "余英"),16] <- "2021/6/5"
+GWAS_ALL[which(GWAS_ALL$name == "钱瑞"),16] <- "2021/6/12"
+GWAS_ALL[which(GWAS_ALL$name == "刘巍敏"),17] <- "2021/8/29"
+
+GWAS_ALL[which(GWAS_ALL$dose_inter < 14),]
+
+GWAS_ALL[which(GWAS_ALL$tele_num == "13708456537"),16] <- "2021/4/1"
+GWAS_ALL[which(GWAS_ALL$name == "胡绍啦"),16] <- "2021/5/26"
+GWAS_ALL[which(GWAS_ALL$tele_num == "13408759107"),16] <- "2021/6/4"
+GWAS_ALL[which(GWAS_ALL$unique_num == "G00757"),16] <- "2021/7/4"
+GWAS_ALL[which(GWAS_ALL$unique_num == "G00757"),17] <- "2021/7/28"
+GWAS_ALL[which(GWAS_ALL$unique_num == "G00286"),7] <- "18"
+
+
+table(GWAS_ALL$F_enterprise)
+table(GWAS_ALL$S_enterprise)
+GWAS_ALL[which(GWAS_ALL$F_enterprise == "科兴中维\n"),14] <- "科兴中维"
+GWAS_ALL[which(GWAS_ALL$S_enterprise == "科兴中维\n"),15] <- "科兴中维"
+
+GWAS_ALL_normalize<- GWAS_ALL[-c(which(GWAS_ALL$F_enterprise=="医科院生物"),which(GWAS_ALL$F_enterprise=="联系不上"),which(GWAS_ALL$F_enterprise=="不配合"),which(GWAS_ALL$dose_inter < 14)),]
+
+write.csv(GWAS_ALL_normalize,"/home/shisusanna/GWAS/data/GWAS_ALL_normalize.csv")
+```
+## rectify the incorrect infomation
+
+
+```{r,normalize merged data}
+XG<- read.csv("/home/shisusanna/GWAS/data/XGvaccination_twodose.csv")
+colnames(XG)
+colnames(XG)[2] <- "name"
+colnames(XG)[3] <- "tele_num"
+
+GWAS_ALL_normalize_match <- merge(GWAS_ALL_normalize,XG,by = c("tele_num","name" ),all.x = T)
+colnames(GWAS_ALL_normalize_match)
+
+GWAS_ALL_normalize_match$接种日期.x <- ifelse(is.na(GWAS_ALL_normalize_match$接种日期.x),GWAS_ALL_normalize_match$F_time,GWAS_ALL_normalize_match$接种日期.x)
+GWAS_ALL_normalize_match$接种日期.y <-
+ifelse(is.na(GWAS_ALL_normalize_match$接种日期.y),GWAS_ALL_normalize_match$S_time,GWAS_ALL_normalize_match$接种日期.y)
+GWAS_ALL_normalize_match$生产企业.x <-
+ifelse(is.na(GWAS_ALL_normalize_match$生产企业.x),GWAS_ALL_normalize_match$F_enterprise,GWAS_ALL_normalize_match$生产企业.x)
+GWAS_ALL_normalize_match$生产企业.y <-
+ifelse(is.na(GWAS_ALL_normalize_match$生产企业.y),GWAS_ALL_normalize_match$S_enterprise,GWAS_ALL_normalize_match$生产企业.y)
+
+which(is.na(GWAS_ALL_normalize_match$接种日期.x ))
+which(is.na(GWAS_ALL_normalize_match$接种日期.y ))
+which(is.na(GWAS_ALL_normalize_match$生产企业.x))
+which(is.na(GWAS_ALL_normalize_match$生产企业.y))
+table(GWAS_ALL_normalize_match$生产企业.x)
+table(GWAS_ALL_normalize_match$生产企业.y)
+
+colnames(GWAS_ALL_normalize_match)
+GWAS_ALL_normalize_select <-select(GWAS_ALL_normalize_match ,-X.x,-F_enterprise, -S_enterprise, -F_time, -S_time,-dose_inter, -序号, -性别.x, -出生日期.x,-X.y,-工作单位.x, -人群分类.x, -接种剂次..填写1或2..x, -性别.y, -出生日期.y, -工作单位.y, -人群分类.y, -接种剂次..填写1或2..y )
+
+GWAS_ALL_normalize_select <-rename( GWAS_ALL_normalize_select ,"ethnicity"="nationality","sex"="gender","F_enterprise"= "生产企业.x","S_enterprise"= "生产企业.y","F_time"="接种日期.x","S_time"="接种日期.y")
+colnames(GWAS_ALL_normalize_select)
+
+GWAS_ALL_normalize_select$F_enterprise <- gsub("北京科兴中维","科兴中维",GWAS_ALL_normalize_select$F_enterprise)
+GWAS_ALL_normalize_select$S_enterprise <- gsub("北京科兴中维","科兴中维",GWAS_ALL_normalize_select$S_enterprise)
+
+GWAS_ALL_normalize_select$inter_dose <- as.Date(GWAS_ALL_normalize_select$S_time)-as.Date(GWAS_ALL_normalize_select$F_time)
+table(GWAS_ALL_normalize_select$inter_dose)
+
+GWAS_ALL_normalize_select$inter_time <- as.Date(GWAS_ALL_normalize_select$incept_time)-as.Date(GWAS_ALL_normalize_select$S_time)
+table(GWAS_ALL_normalize_select$inter_time)
+
+colnames(GWAS_ALL_normalize_select)
+GWAS_ALL_finalized <-select(GWAS_ALL_normalize_select,"unique_num","name","tele_num","ethnicity","sex","age","height","weight","BMI","IgG","IgM","NAb","F_enterprise","S_enterprise","F_time","S_time","inter_dose","incept_time","inter_time","underlying_disease","systolic.diastolic","pain","scleroma","swelling","flush","rush","itching","acute_allergy", "skin.mucosa","diarrhea","anorexia","vomit","nausea","muscle_pain","headache" ,"cough","fatigue","fever","month" )
+colnames(GWAS_ALL_finalized)
+
+GWAS_ALL_finalized$batch <- ifelse(GWAS_ALL_finalized$inter_time<= 0, "After1stdose","After2nddose" )
+
+GWAS_ALL_finalized$agec[GWAS_ALL_finalized[,c("age")] <= 27 & GWAS_ALL_finalized[,c("age")] >= 18 ]<- "18-27"
+GWAS_ALL_finalized$agec[GWAS_ALL_finalized[,c("age")] <= 37 & GWAS_ALL_finalized[,c("age")] >= 28  ]<- "28-37"
+GWAS_ALL_finalized$agec[GWAS_ALL_finalized[,c("age")] <= 47 &  GWAS_ALL_finalized[,c("age")] >= 38  ]<- "38-47"
+GWAS_ALL_finalized$agec[GWAS_ALL_finalized[,c("age")] >= 48  ]<- "48+"
+
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 0]<- "BeforeSecondDose"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 13 & GWAS_ALL_finalized[,c("inter_time")] > 0  ]<- "week1-2"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 30 & GWAS_ALL_finalized[,c("inter_time")] >= 14  ]<- "week3-4"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 60 &  GWAS_ALL_finalized[,c("inter_time")] >= 31  ]<- "week5-8"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 90 &  GWAS_ALL_finalized[,c("inter_time")] >= 61  ]<- "week9-12"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 120 &  GWAS_ALL_finalized[,c("inter_time")] >= 91  ]<- "week13-16"
+GWAS_ALL_finalized$month[GWAS_ALL_finalized[,c("inter_time")] <= 150 &  GWAS_ALL_finalized[,c("inter_time")] >= 121  ]<- "week17-20"
+GWAS_ALL_finalized$month[ GWAS_ALL_finalized[,c("inter_time")] >= 151  ]<- "week21+"
+
+
+
+GWAS_ALL_finalized$BMI <- GWAS_ALL_finalized$weight/( (GWAS_ALL_finalized$height/100 )^2 )
+table(GWAS_ALL_finalized$BMI)
+
+GWAS_ALL_finalized$NAb <- as.numeric(GWAS_ALL_finalized$NAb)
+GWAS_ALL_finalized$NAbpass <- ifelse(GWAS_ALL_finalized$NAb>=2, "Positive","Negative" )
+unique(GWAS_ALL_finalized$NAbpass)
+GWAS_ALL_finalized <- GWAS_ALL_finalized[-c(which(is.na(GWAS_ALL_finalized$NAbpass))),]
+
+
+colnames(GWAS_ALL_finalized)
+
+table(GWAS_ALL_finalized$F_enterprise)
+table(GWAS_ALL_finalized$S_enterprise)
+
+write.csv(GWAS_ALL_finalized,"/home/shisusanna/GWAS/data/GWAS_ALL_finalized.csv")
+
+```
+## calculation of some parameter
+
+
+```{r recify HCW data that without survey}
+antibody_noninfo <- read.csv("/home/shisusanna/data_process/data/antibody_noninfo.csv")
+colnames(antibody_noninfo)
+
+antibody_noninfo$inter_dose <- as.Date(antibody_noninfo$S_time)-as.Date(antibody_noninfo$F_time)
+table(antibody_noninfo$inter_dose)
+antibody_noninfo$inter_time <- as.Date(antibody_noninfo$incept_time)-as.Date(antibody_noninfo$S_time)
+table(antibody_noninfo$inter_time)
+
+antibody_noninfo[which(antibody_noninfo$inter_dose<"0"),16] <- "2021/1/26"
+
+table(antibody_noninfo$F_enterprise)
+table(antibody_noninfo$S_enterprise)
+
+antibody_noninfo$batch <- ifelse(antibody_noninfo$inter_time<= 0, "After1stdose","After2nddose" )
+
+antibody_noninfo$agec[antibody_noninfo[,c("age")] <= 27 & antibody_noninfo[,c("age")] >= 18 ]<- "18-27"
+antibody_noninfo$agec[antibody_noninfo[,c("age")] <= 37 & antibody_noninfo[,c("age")] >= 28  ]<- "28-37"
+antibody_noninfo$agec[antibody_noninfo[,c("age")] <= 47 &  antibody_noninfo[,c("age")] >= 38  ]<- "38-47"
+antibody_noninfo$agec[antibody_noninfo[,c("age")] >= 48  ]<- "48+"
+
+
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 0]<- "BeforeSecondDose"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 13 & antibody_noninfo[,c("inter_time")] > 0  ]<- "week1-2"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 30 & antibody_noninfo[,c("inter_time")] >= 14  ]<- "week3-4"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 60 &  antibody_noninfo[,c("inter_time")] >= 31  ]<- "week5-8"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 90 &  antibody_noninfo[,c("inter_time")] >= 61  ]<- "week9-12"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 120 &  antibody_noninfo[,c("inter_time")] >= 91  ]<- "week13-16"
+antibody_noninfo$month[antibody_noninfo[,c("inter_time")] <= 150 &  antibody_noninfo[,c("inter_time")] >= 121  ]<- "week17-20"
+antibody_noninfo$month[ antibody_noninfo[,c("inter_time")] >= 151  ]<- "week21+"
+
+
+
+antibody_noninfo$BMI <- antibody_noninfo$weight/( (antibody_noninfo$height/100 )^2 )
+table(antibody_noninfo$BMI)
+
+antibody_noninfo$NAb <- as.numeric(antibody_noninfo$NAb)
+antibody_noninfo$NAbpass <- ifelse(antibody_noninfo$NAb>=2, "Positive","Negative" )
+colnames(antibody_noninfo)
+unique(antibody_noninfo$NAbpass)
+
+
+antibody_noninfo <- antibody_noninfo[-which(is.na(antibody_noninfo$batch)),]
+
+write.csv(antibody_noninfo,"/home/shisusanna/GWAS/data/antibody_noninfo.csv")
+
+```
+## Add the data without survey
+
+
+```{r merge data that need to be visualized}
+antibody_noninfo <- read.csv("/home/shisusanna/GWAS/data/antibody_noninfo.csv")
+GWAS_ALL_finalized <- read.csv("/home/shisusanna/GWAS/data/GWAS_ALL_finalized.csv")
+
+library("dplyr")
+
+part1 <-select( antibody_noninfo ,"unique_num","name","tele_num","nationality","gender","age","height","weight","BMI","IgG","IgM","NAb","F_enterprise","S_enterprise","F_time","S_time","inter_dose","incept_time","inter_time","batch","agec","month","NAbpass")
+part1 <- rename(part1,"ethnicity"="nationality","sex"="gender")
+
+part2 <-select( GWAS_ALL_finalized ,"unique_num","name","tele_num","ethnicity","sex","age","height","weight","BMI","IgG","IgM","NAb","F_enterprise","S_enterprise","F_time","S_time","inter_dose","incept_time","inter_time","batch","agec","month","NAbpass")
+
+GWAS_antibody <- rbind(part1,part2)
+table(GWAS_antibody$NAb)
+GWAS_antibody[which(GWAS_antibody$NAb<0.1),12] <- "0.1"
+GWAS_antibody$Vaccines[GWAS_antibody[,c("F_enterprise")] == "北京生物" &  GWAS_antibody[,c("S_enterprise")] == "北京生物"]<- "北京生物"
+GWAS_antibody$Vaccines[GWAS_antibody[,c("F_enterprise")] == "科兴中维" &  GWAS_antibody[,c("S_enterprise")] == "科兴中维"]<- "科兴中维"
+GWAS_antibody$Vaccines[GWAS_antibody[,c("F_enterprise")] == "科兴中维" &  GWAS_antibody[,c("S_enterprise")] == "北京生物"]<- "序贯接种"
+GWAS_antibody$Vaccines[GWAS_antibody[,c("F_enterprise")] == "北京生物" &  GWAS_antibody[,c("S_enterprise")] == "科兴中维"]<- "序贯接种"
+
+GWAS_antibody$BMI <- GWAS_antibody$weight/( (GWAS_antibody$height/100 )^2 )
+
+GWAS_antibody$BMIc[GWAS_antibody[,c("BMI")]< 18.5  ]<- "BMI<18.5"
+GWAS_antibody$BMIc[GWAS_antibody[,c("BMI")] < 25 & GWAS_antibody[,c("BMI")] >= 18.5 ]<- "18.5≤BMI<25"
+GWAS_antibody$BMIc[ GWAS_antibody[,c("BMI")] >= 25  ]<- "BMI≥25"
+
+write.csv(GWAS_antibody,"/home/shisusanna/GWAS/data/GWAS_antibody.csv")
+
+conPatient <- read.table("/home/zijiezhang/CoVaccine/CoVaccine_third/data/ncov康复患者nab-hlj-gs-yn.csv", header = TRUE, sep = ","  )
+meanCoP <- mean( conPatient$NAb )
+
+```
+## preparation for visualization
+
+
+```{r parameters of NAb}
+GWAS_antibody <- read.csv("/home/shisusanna/GWAS/data/GWAS_antibody.csv")
+
+geom_mean <- function(x, CI = 0.95){
+  n = length(x)
+  X = log(x)
+  geomM <- exp( mean( X ) )
+  a = (1-CI)/2
+  Int = abs( qt(a, n-1)*sd(X)/sqrt(n)  )
+  re = c( exp(mean(X)- Int), geomM, exp(mean(X) + Int ) )
+  names(re) = c("CI_low","GeometricalMean","CI_high")
+  return( re )
+}
+
+subset <- GWAS_antibody[which(GWAS_antibody$month=="week3-4"),]
+subset$NAb <- as.numeric(subset$NAb)
+
+mean(subset$NAb)
+geom_mean(subset$NAb)
+fivenum(subset$NAb)
+
+length(which(subset$NAbpass=="Negative"))/(length(which(subset$NAbpass=="Positive"))+length(which(subset$NAbpass=="Negative")))
+
+```
+## parameters of NAb
+
+
+```{r  density distribution of two dose , fig.width= 15,fig.height= 10}
+GWAS_antibody$NAb <- as.numeric(GWAS_antibody$NAb )
+GWAS_antibody$NAbpass <- factor(GWAS_antibody$NAbpass,levels = c("Negative","Positive"))
+
+library("ggplot2")
+library("ggsci")
+library("cowplot")
+
+ggplot(GWAS_antibody, aes(  x = log2(NAb), fill = batch ) )  +
+  geom_density(alpha = 0.5)+
+  geom_vline( xintercept = log2(2), lty = 2,color ="red")+
+  geom_vline(xintercept = log2(0.202*meanCoP), lty = 2,color = "blue")+
+  theme_classic()+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) ) +
+  scale_fill_aaas()+
+  scale_y_continuous(expand = c(0,0))
+
+p00 <- ggplot(GWAS_antibody, aes( x =batch, y = log2(NAb) ) )+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  labs(tag = "A") +
+  geom_abline(intercept = log2(2), slope = 0, lty = 2,color ="black")+
+  stat_summary(fun.y=mean, geom="point", shape="*",size=15, color="#FFCC00")
+
+
+p01 <- ggplot(GWAS_antibody, aes(  x = log2(NAb), fill = batch ) )  +
+  geom_density(alpha = 0.5)+
+  geom_vline( xintercept = log2(2), lty = 2,color ="red")+
+  geom_vline(xintercept = log2(0.2*meanCoP), lty = 2,color = "blue")+
+  theme_classic()+
+  labs(tag = "B") +
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) ) +scale_fill_nejm()+
+  scale_y_continuous(expand = c(0,0) )+
+  scale_x_continuous(limits = c(-5,10))
+
+plot_grid(p00, p01)
+```
+## the change of log2(NAb) between After1st and After2rd
+
+
+```{r fig.width= 15,fig.height= 10}
+table(GWAS_antibody$month)
+GWAS_antibody$month <- factor(GWAS_antibody$month,levels = c("BeforeSecondDose","week1-2","week3-4","week5-8","week9-12","week13-16","week17-20","week21+"))
+
+ggplot(GWAS_antibody, aes( x =month, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  geom_abline(intercept = log2(2), slope = 0, lty = 1,color ="black",size=1)+
+  stat_summary(fun.y=mean, geom="point", shape="*",size=8, color="#FFCC00")
+# add a geom_line among median  
+```
+## scatter plot of log2(NAb)  and inter_time
+
+
+```{r fig.width= 15,fig.height= 10}
+GWAS_antibody_2nd <- subset(GWAS_antibody,GWAS_antibody$batch=="After2nddose")
+GWAS_antibody_2nd$NAb <- as.numeric(GWAS_antibody_2nd$NAb)
+GWAS_antibody_2nd2 <- GWAS_antibody_2nd[-c(which(is.na(GWAS_antibody_2nd$Vaccines))),]
+
+library("ggpubr")
+
+ggplot(GWAS_antibody_2nd, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth()+
+  stat_cor()
+
+```
+## scatter plot of log2(NAb)  and inter_time
+
+
+```{r fig.width= 15,fig.height= 10}
+
+ggplot(GWAS_antibody_2nd2, aes( x =Vaccines, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_summary(fun.y=median, geom="point", shape="*",size=10, color="#FFCC00")
+
+```
+## scatter plot of log2(NAb)  and Sequential vaccination
+
+
+```{r fig.width= 45,fig.height= 30}
+library(viridis)
+library(ggpointdensity)
+library(cowplot)
+
+p1 <- ggplot(GWAS_antibody_2nd, aes( x =inter_time, y = log2(NAb))) +
+  geom_point(size = 2) +
+  geom_jitter(size = 2)+
+  geom_abline(intercept = log2(2), slope = 0, lty = 2,color ="red")+
+  stat_smooth(color = "blue",size=0.8)+
+  labs(tag = "A") +
+  stat_cor()+
+  theme_classic()
+
+p2 <- ggplot(GWAS_antibody_2nd, aes( x =inter_time, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "D") +
+  labs(tag = "B") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#660099", fill = "#cbc9e2")+
+  stat_cor(size=3)+
+  facet_grid(.~sex)
+
+#GWAS_antibody_2nd[which(is.na(GWAS_antibody_2nd$agec)),]
+p3 <- ggplot(GWAS_antibody_2nd, aes( x =inter_time, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "C") +
+  labs(tag = "C") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#FF9900", fill = "#cbc9e2")+
+ stat_cor(size=3)+
+  facet_grid(.~agec)
+
+p4 <- ggplot(GWAS_antibody_2nd2, aes( x =inter_time, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "B") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#993300", fill = "#cbc9e2")+
+  stat_cor(size=3)+
+  facet_grid(.~Vaccines)+
+  labs(tag = "D")
+
+unique(GWAS_ALL_finalized$underlying_disease)
+length(which(is.na(GWAS_ALL_finalized$underlying_disease)))
+
+GWAS_ALL_finalized$comorbidity <- ifelse(GWAS_ALL_finalized$underlying_disease== "健康", "healthy","comorbidity" )
+length(which(is.na(GWAS_ALL_finalized$comorbidity)))
+colnames(GWAS_ALL_finalized)
+GWAS_ALL_finalized[c(which(is.na(GWAS_ALL_finalized$underlying_disease))),43] <- "healthy"
+
+GWAS_ALL_finalized[which(GWAS_ALL_finalized$NAb<0.1),12] <- "0.1"
+GWAS_ALL_finalized$NAb <- as.numeric(GWAS_ALL_finalized$NAb)
+GWAS_ALL_comorbidity <- GWAS_ALL_finalized[-c(which(GWAS_ALL_finalized$inter_time<=0)),]
+
+p5 <- ggplot(GWAS_ALL_comorbidity, aes( x =inter_time, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "E") +
+  labs(tag = "E") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#003399", fill = "#cbc9e2")+
+  stat_cor(size=3)+
+  facet_grid(.~comorbidity)
+
+GWAS_antibody_BMI <-GWAS_antibody_2nd[-c(which(is.na(GWAS_antibody_2nd$BMIc))),]
+GWAS_antibody_BMI$NAb <- as.numeric(GWAS_antibody_BMI$NAb)
+
+p6 <- ggplot(GWAS_antibody_BMI, aes( x =inter_time, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "D") +
+  labs(tag = "F") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#003399", fill = "#cbc9e2")+
+  stat_cor(size=3)+
+  facet_grid(.~BMIc)
+
+plot_grid(p1, p2, p3, p4,p5,p6,nrow = 3)
+
+GWAS_antibody_2nd$inter_dose <- as.numeric(GWAS_antibody_2nd$inter_dose)
+cor.test(GWAS_antibody_2nd$inter_dose,GWAS_antibody_2nd$NAb)
+#0.1147541
+```
+## correltion between log2(NAb) and inter_time(facet with age/sex/Vaccines/comorbidity/BMI)
+
+
+```{r fig.width= 75,fig.height= 50}
+
+library(ggpmisc)
+
+p7 <-ggplot(GWAS_antibody_2nd, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+   stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(agec),vars(sex))+
+  labs(tag = "A") 
+
+
+p8 <- ggplot(GWAS_antibody_2nd2, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+   stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+   stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(Vaccines),vars(agec))+
+  labs(tag = "B") 
+
+p9 <- ggplot(GWAS_antibody_2nd2, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(Vaccines),vars(sex))+
+  labs(tag = "C") 
+
+p10 <- ggplot(GWAS_ALL_comorbidity, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(comorbidity),vars(sex))+
+  labs(tag = "D") 
+
+p11 <- ggplot(GWAS_ALL_comorbidity, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(comorbidity),vars(agec))+
+  labs(tag = "E") 
+
+GWAS_ALL_comorbidity$BMIc[GWAS_ALL_comorbidity[,c("BMI")]< 18.5  ]<- "BMI<18.5"
+GWAS_ALL_comorbidity$BMIc[GWAS_ALL_comorbidity[,c("BMI")] < 25 & GWAS_ALL_comorbidity[,c("BMI")] >= 18.5 ]<- "18.5≤BMI<25"
+GWAS_ALL_comorbidity$BMIc[ GWAS_ALL_comorbidity[,c("BMI")] >= 25  ]<- "BMI≥25"
+p12 <- ggplot(GWAS_ALL_comorbidity, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(comorbidity),vars(BMIc))+
+  labs(tag = "F")
+
+
+p13 <- ggplot(GWAS_antibody_BMI, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(BMIc),vars(agec))+
+  labs(tag = "G")
+
+p14 <- ggplot(GWAS_antibody_BMI, aes( x =inter_time, y = log2(NAb)))+
+  theme_minimal()+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_smooth(method = lm, formula = y~x,color = "black",size=0.8)+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=-9,label.x=135,size=3)+
+  facet_grid(vars(BMIc),vars(sex))+
+  labs(tag = "H")
+
+plot_grid(p7, p8,p9, p10,p11, p12,p13, p14,nrow = 4)
+```
+## correltion between log2(NAb) and inter_time(facet with two of age/sex/Vaccines/comorbidity/BMI)
+
+
+```{r fig.width= 75,fig.height= 50}
+p15 <- ggplot(GWAS_antibody_2nd, aes( x =weight, y = log2(NAb))) +
+  geom_point(size = 2) +
+  geom_jitter(size = 2)+
+  geom_abline(intercept = log2(2), slope = 0, lty = 2,color ="red")+
+  stat_smooth(color = "#FFCC33",size=0.8)+
+  labs(tag = "A") + 
+  stat_cor()+
+  theme_classic()
+
+p16 <- ggplot(GWAS_antibody_2nd, aes( x =weight, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "F") +
+  labs(tag = "B") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#CC3300", fill = "#cbc9e2")+
+  stat_cor()+
+  facet_grid(.~sex)
+
+p17 <- ggplot(GWAS_antibody_2nd, aes( x =weight, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "C") +
+  labs(tag = "C") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#FF9900", fill = "#cbc9e2")+
+  stat_cor()+
+  facet_grid(.~agec)
+
+p18 <- ggplot(GWAS_antibody_2nd2, aes( x =weight, y = log2(NAb)))+
+  geom_pointdensity() +
+  scale_color_viridis(option = "D") +
+  labs(tag = "D") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#FF9900", fill = "#cbc9e2")+
+  stat_cor()+
+  facet_grid(.~Vaccines)
+
+plot_grid(p15, p16, p17, p18, nrow = 2)
+
+cor.test(GWAS_antibody_2nd2$NAb,GWAS_antibody_2nd2$weight)
+#-0.01
+cor.test(GWAS_antibody_2nd2$NAb,GWAS_antibody_2nd2$height)
+#0.004
+```
+## correltion between log2(NAb) and weight
+
+
+```{r  fig.width= 45,fig.height= 30}
+unique(GWAS_ALL_finalized$underlying_disease)
+length(which(is.na(GWAS_ALL_finalized$underlying_disease)))
+
+GWAS_ALL_finalized$comorbidity <- ifelse(GWAS_ALL_finalized$underlying_disease== "健康", "healthy","comorbidity" )
+length(which(is.na(GWAS_ALL_finalized$comorbidity)))
+colnames(GWAS_ALL_finalized)
+GWAS_ALL_finalized[c(which(is.na(GWAS_ALL_finalized$underlying_disease))),43] <- "healthy"
+
+GWAS_ALL_finalized[which(GWAS_ALL_finalized$NAb<0.1),12] <- "0.1"
+GWAS_ALL_finalized$NAb <- as.numeric(GWAS_ALL_finalized$NAb)
+GWAS_ALL_comorbidity<- GWAS_ALL_finalized[-c(which(GWAS_ALL_finalized$inter_time<=0)),]
+
+p19 <-ggplot(GWAS_ALL_comorbidity, aes( x =comorbidity, y = log2(NAb)))+
+  theme_minimal()+
+  labs(tag = "A") +
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_summary(fun.y=median, geom="point", shape="*",size=10, color="#FFCC00")
+
+p20  <- ggplot(GWAS_ALL_comorbidity, aes( x =comorbidity, y = log2(NAb)))+
+  geom_boxplot( size = 0.5, width = 0.6 ,outlier.alpha = 0 )+
+  geom_point(size = 3 ,position=position_jitterdodge(dodge.width = 0, jitter.width = 0.35), aes( fill = "" ),pch = 21, color = "black" ) +
+  theme_classic()+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) ) + 
+  scale_fill_aaas( )+
+  stat_compare_means( comparisons = list(c("healthy","comorbidity") ),method = "t.test", size = 5.5 )+
+  labs(tag = "B") 
+
+plot_grid( p19, p20)
+```
+## correltion between log2(NAb) and comorbidity
+
+
+```{r  fig.width= 75,fig.height= 50}
+GWAS_antibody_BMI <-GWAS_antibody_2nd[-c(which(is.na(GWAS_antibody_2nd$BMIc))),]
+GWAS_antibody_BMI$NAb <- as.numeric(GWAS_antibody_BMI$NAb)
+
+cor.test(GWAS_antibody_BMI$NAb,GWAS_antibody_BMI$BMI)
+#-0.017
+
+p21 <-ggplot(GWAS_antibody_BMI, aes( x =BMIc, y = log2(NAb)))+
+  theme_minimal()+
+  labs(tag = "A") +
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  stat_summary(fun.y=median, geom="point", shape="*",size=10, color="#FFCC00")
+
+p22 <- ggplot(GWAS_antibody_BMI, aes( x =BMI, y = log2(NAb))) +
+  geom_bin2d(bins = 60) + 
+  scale_fill_viridis() +
+  labs(tag = "B") +
+  theme_classic()+
+  stat_smooth(color = "#FFCC33",size=0.8)+
+  stat_cor()
+ 
+plot_grid(p21, p22)
+
+```
+## correltion between log2(NAb) and BMI
+
+
+```{r GMT}
+
+geom_mean <- function(x, CI = 0.95){
+  n = length(x)
+  X = log(x)
+  geomM <- exp( mean( X ) )
+  a = (1-CI)/2
+  Int = abs( qt(a, n-1)*sd(X)/sqrt(n)  )
+  re = c( exp(mean(X)- Int), geomM, exp(mean(X) + Int ) )
+  names(re) = c("CI_low","GeometricalMean","CI_high")
+  return( re )
+}
+
+GM <- sapply(tapply(GWAS_antibody$NAb, GWAS_antibody$month, geom_mean),c)
+GMT <- as.data.frame( t( GM ) )
+GMT$month <- rownames(GMT)
+colnames(GMT)
+
+GWAS_antibody$month
+GWAS_antibody$NAb <- as.numeric(GWAS_antibody$NAb)
+
+ggplot(GWAS_antibody, aes( x =month, y = log2(NAb)))+
+  geom_boxplot( size = 1.2, width = 0.8 ,outlier.shape = NA)+ 
+  stat_boxplot(geom = "errorbar",width=0.3,)+
+  geom_point(size =1.2, position=position_jitterdodge(dodge.width = 0, jitter.width = 0.9) ,aes(fill =NAbpass),color = "black",pch=21 )+
+  scale_fill_aaas()+
+  theme(axis.text.x = element_text(angle = 30,vjust = 1,hjust = 1))+
+  theme_classic()
+
+ggplot(GWAS_antibody, aes( x =month, y = log2(NAb)))+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  geom_point( data = GMT, aes( x =month, y = log2(GeometricalMean) ), shape="*",size=10, color="#FFCC00" )+
+  geom_path(size = 0.71,data = GMT,aes(x = month, y = log2(GeometricalMean), group = 1),linetype=2,colour="#FFCC00")+
+  stat_boxplot(geom = "errorbar",width=0.3,ymin=log2(GMT$CI_low),yax=log2(GMT$CI_high))
+
+MN <- sapply(tapply(GWAS_antibody$NAb,GWAS_antibody$month,fivenum),c)
+MTN <- as.data.frame( t( MN ) )
+MTN$month <- rownames(MTN )
+
+ ggplot(GWAS_antibody,aes(x =month, y = log2(NAb),fill=month))+
+   geom_boxplot(width=0.5,outlier.shape = NA)+
+   stat_boxplot(geom = "errorbar",width=0.3)+
+   theme_classic()+
+   theme(axis.text.x = element_text(angle = 30,vjust = 1,hjust = 1))+
+   guides(fill=guide_legend(reverse = T))+
+   geom_point(data=MTN,aes( x =month, y = log2(V3)), shape=".",size=10, color="#FFCC00" )+
+   geom_path(data=MTN,aes( x =month, y = log2(V3), group =1),linetype=1,colour="black")
+
+```
+## group plot 
+
+
+
+```{r}
+HNantibody <- read.csv("/home/shisusanna/GWAS/data/海南重测抗体.csv")
+HNantibody$Ab[grep("<", HNantibody$Ab)] <- "4"
+colnames(HNantibody)
+HNantibody$NAb <- as.numeric(HNantibody$NAb)
+HNantibody$Ab <- as.numeric(HNantibody$Ab)
+
+ggplot(HNantibody, aes( x = log2(NAb), y = log2(Ab) , color = "black") ) +
+  geom_point(size = 2,  color = "black" )  +
+  geom_abline(intercept = log2(8), slope = 0, lty = 2,color ="red")+
+  geom_vline(xintercept =  log2( 8 ), lty = 2,color = "blue")+
+  theme_classic()+
+  theme(text = element_text( color = "black",size = 20), axis.text = element_text( color = "black"), plot.title = element_text(hjust = 0.5) )
+
+cor.test(HNantibody$NAb,HNantibody$Ab)
+#0.4470939
+cor.test(HNantibody$Nab,HNantibody$Ab)
+#0.5091532
+cor.test(HNantibody$Nab,HNantibody$NAb)
+#0.7637595
+```
+## antibody correlation between virus neutralization test(VNT) and MCLIA
+

@@ -1,0 +1,410 @@
+---
+title: "Phenotype_sequenced"
+author: "shisusanna"
+date: "2022/1/5"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE)
+```
+
+
+```{r }
+library(dplyr)
+GWAS_AH_new126 <- read.csv("/home/shisusanna/data_process/data/GWAS_AH_new126.csv")
+colnames(GWAS_AH_new126)
+GWAS_AH <-  select(GWAS_AH_new126,"unique_num",everything())
+GWAS_AH <- GWAS_AH[,-2]
+colnames(GWAS_AH)
+
+GWAS_EH<- read.csv("/home/shisusanna/GWAS/data/GWAS-EH.csv")
+colnames(GWAS_EH)
+colnames(GWAS_EH)[1] <- "unique_num"
+colnames(GWAS_EH)[19] <- "inter_time"
+GWAS_EH$month[GWAS_EH[,c("inter_time")] <= 30 & GWAS_EH[,c("inter_time")] >= 0  ]<- "1month"
+
+GWAS_HN<- read.csv("/home/shisusanna/GWAS/data/GWAS-HN.csv")
+GWAS_HN$month[GWAS_HN[,c("inter_time")] <= 30 & GWAS_HN[,c("inter_time")] >= 0  ]<- "1month"
+
+GWAS_eQTL<- read.csv("/home/shisusanna/GWAS/data/GWAS_eQTL.csv")
+GWAS_eQTL$month[GWAS_eQTL[,c("inter_time")] <= 30 & GWAS_eQTL[,c("inter_time")] >= 0  ]<- "1month"
+
+match(colnames(GWAS_AH),colnames(GWAS_HN))
+colnames(GWAS_HN)[1] <- "unique_num"
+colnames(GWAS_HN)[21] <- "systolic.diastolic"
+colnames(GWAS_HN)[33] <- "nausea"
+GWAS_ALL1 <- rbind(GWAS_AH,GWAS_HN)
+
+match(colnames(GWAS_EH),colnames(GWAS_eQTL))
+colnames(GWAS_eQTL)[21] <- "systolic.diastolic"
+colnames(GWAS_eQTL)[33] <- "nausea"
+GWAS_ALL2 <- rbind(GWAS_EH,GWAS_eQTL)
+GWAS_ALL <- rbind(GWAS_ALL1,GWAS_ALL2)
+
+write.csv(GWAS_ALL,"/home/shisusanna/GWAS/data/GWAS_ALL.csv")
+```
+## merge all data
+
+```{r}
+GWAS_ALL <- read.csv("/home/shisusanna/GWAS/data/GWAS_ALL.csv")
+GWAS_ALL$inter_time <- as.Date(GWAS_ALL$incept_time)-as.Date(GWAS_ALL$S_time)
+GWAS_ALL_sequenced <- GWAS_ALL[GWAS_ALL$inter_time>=14 & GWAS_ALL$inter_time<=30,]
+
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 0]<- "After1rd"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 30 & GWAS_ALL[,c("inter_time")] >= 0  ]<- "1month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 60 &  GWAS_ALL[,c("inter_time")] >= 31  ]<- "2month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 90 &  GWAS_ALL[,c("inter_time")] >= 61  ]<- "3month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 120 &  GWAS_ALL[,c("inter_time")] >= 91  ]<- "4month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 150 &  GWAS_ALL[,c("inter_time")] >= 121  ]<- "5month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 180 &  GWAS_ALL[,c("inter_time")] >= 151  ]<- "6month"
+GWAS_ALL$month[GWAS_ALL[,c("inter_time")] <= 210 &  GWAS_ALL[,c("inter_time")] >= 181  ]<- "7month"
+```
+## sequenced samples data with survey information(samples that meet eligibility criteria)
+
+
+```{r}
+antibody_noninfo <- read.csv("/home/shisusanna/GWAS/data/antibody_noninfo_match_input.csv")
+colnames(antibody_noninfo)
+colnames(GWAS_ALL_sequenced)
+
+GWAS_ALL_sequenced1 <- select( GWAS_ALL_sequenced,"unique_num","name","tele_num","nationality","gender","age","height","weight","BMI","IgG","IgM","NAb","F_enterprise","S_enterprise","F_time","S_time","incept_time","inter_time")
+
+antibody_noninfo$inter_time <- as.Date(antibody_noninfo$incept_time)-as.Date(antibody_noninfo$S_time)
+antibody_noninfo1 <- antibody_noninfo[antibody_noninfo$inter_time>=14 & antibody_noninfo$inter_time<=30,]
+
+match(colnames(antibody_noninfo1),colnames(GWAS_ALL_sequenced1))
+GWAS_sequenced_noninfo <- rbind(antibody_noninfo1,GWAS_ALL_sequenced1)
+write.csv(GWAS_sequenced_noninfo,"/home/shisusanna/GWAS/data/GWAS_sequenced_noninfo.csv")
+```
+
+```{r }
+install.packages("tidyfst")
+library("tidyfst")
+count_dt(GWAS_sequenced_noninfo,unique_num,.name = "count")
+#filter_dt(count_dt(GWAS_sequenced_noninfo,unique_num),n>1)
+
+## there are many repeats,we match the dataframe with original serial number excel in order to solve it.
+GH_num <- read.csv("/home/shisusanna/data_process/data/完整版GH编号126.csv")
+GWAS_sequenced_noninfo <- read.csv("/home/shisusanna/GWAS/data/GWAS_sequenced_noninfo.csv")
+colnames(GH_num)
+colnames(GWAS_sequenced_noninfo)
+debug_GH <- merge(GWAS_sequenced_noninfo,GH_num,by=c("name","tele_num"),all.x = T)
+write.csv(debug_GH,"/home/shisusanna/GWAS/data/debug_GH.csv")
+## 26 samples' number are incorrect
+
+GWAS_sequenced_noninfo <- read.csv("/home/shisusanna/GWAS/data/GWAS_sequenced_noninfo.csv")
+which(GWAS_sequenced_noninfo$name == "陈忠明")
+GWAS_sequenced_noninfo[839,2] <- "GH23417"
+which(GWAS_sequenced_noninfo$name == "李朝艳")
+GWAS_sequenced_noninfo[845,2] <- "GH23514"
+which(GWAS_sequenced_noninfo$name == "罗琼芳")
+GWAS_sequenced_noninfo[853,2] <- "GH23580"
+which(GWAS_sequenced_noninfo$name == "周家莲")
+GWAS_sequenced_noninfo[873,2] <- "GH23832"
+which(GWAS_sequenced_noninfo$name == "杨永")
+GWAS_sequenced_noninfo[865,2] <- "GH23866"
+count_dt(GWAS_sequenced_noninfo,unique_num,.name = "count")
+
+
+table(GWAS_sequenced_noninfo$NAb)
+GWAS_sequenced_noninfo$NAb[grep("<", GWAS_sequenced_noninfo$NAb)] <- "0.1"
+GWAS_sequenced_noninfo$NAb[grep(">", GWAS_sequenced_noninfo$NAb)] <- "31"
+GWAS_sequenced_noninfo$NAb[GWAS_sequenced_noninfo[,"NAb"] <= 0.01] <- "0.1"
+
+GWAS_sequenced_noninfo_uni <-filter( group_by(GWAS_sequenced_noninfo,unique_num),NAb == max(NAb))
+colnames(GWAS_sequenced_noninfo_uni)
+colnames(GWAS_sequenced_noninfo_uni)[5] <- "ethnicity"
+
+GWAS_sequenced_noninfo_uni$inter_dose <- as.Date(GWAS_sequenced_noninfo_uni$S_time) - as.Date(GWAS_sequenced_noninfo_uni$F_time) 
+GWAS_sequenced_noninfo_uni[GWAS_sequenced_noninfo_uni$inter_dose<0,]
+colnames(GWAS_sequenced_noninfo)
+which(GWAS_sequenced_noninfo_uni$unique_num == "GH23788")
+GWAS_sequenced_noninfo_uni[95,16] <- "2021/1/26"
+which(GWAS_sequenced_noninfo_uni$unique_num == "G00114")
+GWAS_sequenced_noninfo_uni[1077,16] <- "2021/5/26"
+GWAS_sequenced_noninfo_uni$inter_dose <- as.Date(GWAS_sequenced_noninfo_uni$S_time) - as.Date(GWAS_sequenced_noninfo_uni$F_time)
+
+unique(GWAS_sequenced_noninfo_uni$inter_dose)
+write.csv(GWAS_sequenced_noninfo_uni,"/home/shisusanna/GWAS/data/GWAS_sequenced_noninfo_uni.csv")
+```
+
+```{r}
+GWAS_sequenced_noninfo_uni <- read.csv("/home/shisusanna/GWAS/data/GWAS_sequenced_noninfo_uni.csv")
+XGvaccination1 <- read.csv("/home/shisusanna/data_process/data/XGvaccination1.csv")
+XGvaccination2 <- read.csv("/home/shisusanna/data_process/data/XGvaccination2.csv")
+colnames(XGvaccination1 )
+XGvaccination <- merge(XGvaccination1,XGvaccination2,by=c("姓名","联系电话"),all = T)
+
+library("dplyr")
+XGvaccination_uni <- distinct(XGvaccination)
+write.csv(XGvaccination,"/home/shisusanna/GWAS/data/XGvaccination_uni.csv")
+
+colnames(XGvaccination_uni)
+colnames(GWAS_sequenced_noninfo_uni)
+colnames(XGvaccination_uni)[1] <- "name"
+colnames(XGvaccination_uni)[2] <- "tele_num"
+GWAS_sequenced_noninfo_uni_match <- merge(GWAS_sequenced_noninfo_uni,XGvaccination_uni,by = c("tele_num","name" ),all.x = T)
+
+write.csv(GWAS_sequenced_noninfo_uni_match,"/home/shisusanna/data_process/data/GWAS_sequenced_noninfo_uni_match.csv")
+```
+
+
+```{r}
+GWAS_sequenced_noninfo_uni_match <- read.csv("/home/shisusanna/data_process/data/GWAS_sequenced_noninfo_uni_match.csv")
+colnames(GWAS_sequenced_noninfo_uni_match)
+
+GWAS_sequenced_noninfo_uni_match$接种日期.x <- ifelse(is.na(GWAS_sequenced_noninfo_uni_match$接种日期.x),GWAS_sequenced_noninfo_uni_match$F_time,GWAS_sequenced_noninfo_uni_match$接种日期.x)
+GWAS_sequenced_noninfo_uni_match$接种日期.y <-
+ifelse(is.na(GWAS_sequenced_noninfo_uni_match$接种日期.y),GWAS_sequenced_noninfo_uni_match$S_time,GWAS_sequenced_noninfo_uni_match$接种日期.y)
+GWAS_sequenced_noninfo_uni_match$生产企业.x <-
+ifelse(is.na(GWAS_sequenced_noninfo_uni_match$生产企业.x),GWAS_sequenced_noninfo_uni_match$F_enterprise,GWAS_sequenced_noninfo_uni_match$生产企业.x)
+GWAS_sequenced_noninfo_uni_match$生产企业.y <-
+ifelse(is.na(GWAS_sequenced_noninfo_uni_match$生产企业.y),GWAS_sequenced_noninfo_uni_match$S_enterprise,GWAS_sequenced_noninfo_uni_match$生产企业.y)
+
+which(is.na(GWAS_sequenced_noninfo_uni_match$接种日期.x ))
+which(is.na(GWAS_sequenced_noninfo_uni_match$接种日期.y ))
+which(is.na(GWAS_sequenced_noninfo_uni_match$生产企业.x))
+which(is.na(GWAS_sequenced_noninfo_uni_match$生产企业.y))
+
+colnames(GWAS_sequenced_noninfo_uni_match)
+GWAS_sequenced_noninfo_uni_cor <- select(GWAS_sequenced_noninfo_uni_match,"unique_num","tele_num","name", "ethnicity","gender","age","height","weight","BMI","IgG","IgM","NAb","生产企业.x","生产企业.y","接种日期.x","接种日期.y","incept_time","inter_time","inter_dose")
+GWAS_sequenced_noninfo_uni_cor <-rename( GWAS_sequenced_noninfo_uni_cor,"sex"="gender","F_enterprise"= "生产企业.x","S_enterprise"= "生产企业.y","F_time"="接种日期.x","S_time"="接种日期.y")
+
+GWAS_sequenced_noninfo_uni_cor$F_enterprise <- gsub("北京科兴中维","科兴中维",GWAS_sequenced_noninfo_uni_cor$F_enterprise)
+GWAS_sequenced_noninfo_uni_cor$S_enterprise <- gsub("北京科兴中维","科兴中维",GWAS_sequenced_noninfo_uni_cor$S_enterprise)
+
+GWAS_sequenced_noninfo_uni_cor$inter_time <- as.numeric(as.Date(GWAS_sequenced_noninfo_uni_cor$incept_time)-as.Date(GWAS_sequenced_noninfo_uni_cor$S_time))
+GWAS_sequenced_noninfo_uni_cor$inter_dose<- as.numeric(as.Date(GWAS_sequenced_noninfo_uni_cor$S_time)-as.Date(GWAS_sequenced_noninfo_uni_cor$F_time))
+
+table(GWAS_sequenced_noninfo_uni_cor$inter_time)
+table(GWAS_sequenced_noninfo_uni_cor$inter_dose)
+GWAS_sequenced_noninfo_uni_cor[which(GWAS_sequenced_noninfo_uni_cor$inter_dose=="387"),16] <- "2021/5/30"
+GWAS_sequenced_noninfo_uni_cor[which(GWAS_sequenced_noninfo_uni_cor$inter_dose<=1),]
+GWAS_sequenced_noninfo_uni_cor[which(GWAS_sequenced_noninfo_uni_cor$unique_num=="GH20092"),16]<- "2021/4/9"
+
+GWAS_sequenced_noninfo_uni_cor<-GWAS_sequenced_noninfo_uni_cor[-which(GWAS_sequenced_noninfo_uni_cor$unique_num=="GH22540"),]
+GWAS_sequenced_noninfo_uni_cor<-GWAS_sequenced_noninfo_uni_cor[-which(GWAS_sequenced_noninfo_uni_cor$unique_num=="GH21161"),]
+
+GWAS_sequenced_noninfo_uni_cor[which(GWAS_sequenced_noninfo_uni_cor$inter_dose==365),]
+GWAS_sequenced_noninfo_uni_cor[1413,16] <- "2021/5/30"
+GWAS_sequenced_noninfo_uni_cor[1413,17] <- "2021/6/21"
+
+GWAS_sequenced_noninfo_uni_cor$inter_time <- as.numeric(as.Date(GWAS_sequenced_noninfo_uni_cor$incept_time)-as.Date(GWAS_sequenced_noninfo_uni_cor$S_time))
+GWAS_sequenced_noninfo_uni_cor$inter_dose<- as.numeric(as.Date(GWAS_sequenced_noninfo_uni_cor$S_time)-as.Date(GWAS_sequenced_noninfo_uni_cor$F_time))
+
+write.csv(GWAS_sequenced_noninfo_uni_cor ,"/home/shisusanna/data_process/data/GWAS_sequenced_noninfo_uni_cor.csv")
+```
+
+
+```{r}
+GWAS_sequenced_noninfo_uni_cor <- read.csv("/home/shisusanna/data_process/data/GWAS_sequenced_noninfo_uni_cor.csv")
+GWAS_sequenced_plot <-GWAS_sequenced_noninfo_uni_cor[c(which(grepl("^e",GWAS_sequenced_noninfo_uni_cor$unique_num)),which(grepl("^G",GWAS_sequenced_noninfo_uni_cor$unique_num))),] 
+
+table(GWAS_sequenced_plot$inter_time)
+table(GWAS_sequenced_plot$inter_dose)
+
+GWAS_seq_plot <- GWAS_sequenced_plot[which(GWAS_sequenced_plot$inter_time>=14&GWAS_sequenced_plot$inter_time<=30),]
+
+GWAS_seq_plot <- GWAS_seq_plot[-which(GWAS_seq_plot$NAb==31),]
+GWAS_seq_plot$NAbpass <- ifelse(GWAS_seq_plot$NAb>2, "Positive","Negative" )
+table(GWAS_seq_plot$NAbpass)
+
+table(GWAS_seq_plot$age)
+GWAS_seq_plot$agec[GWAS_seq_plot[,c("age")] <= 27 & GWAS_seq_plot[,c("age")] >= 18 ]<- "18-27"
+GWAS_seq_plot$agec[GWAS_seq_plot[,c("age")] <= 37 & GWAS_seq_plot[,c("age")] >= 28  ]<- "28-37"
+GWAS_seq_plot$agec[GWAS_seq_plot[,c("age")] <= 47 &  GWAS_seq_plot[,c("age")] >= 38  ]<- "38-47"
+GWAS_seq_plot$agec[GWAS_seq_plot[,c("age")] >= 48  ]<- "48+"
+
+GWAS_seq_plot$Vaccines[GWAS_seq_plot[,c("F_enterprise")] == "北京生物" &  GWAS_seq_plot[,c("S_enterprise")] == "北京生物"]<- "北京生物"
+GWAS_seq_plot$Vaccines[GWAS_seq_plot[,c("F_enterprise")] == "科兴中维" &  GWAS_seq_plot[,c("S_enterprise")] == "科兴中维"]<- "科兴中维"
+GWAS_seq_plot$Vaccines[GWAS_seq_plot[,c("F_enterprise")] == "科兴中维" &  GWAS_seq_plot[,c("S_enterprise")] == "北京生物"]<- "序贯接种"
+GWAS_seq_plot$Vaccines[GWAS_seq_plot[,c("F_enterprise")] == "北京生物" &  GWAS_seq_plot[,c("S_enterprise")] == "科兴中维"]<- "序贯接种"
+
+GWAS_seq_plot$NAb <- as.numeric(GWAS_seq_plot$NAb)
+hist(GWAS_seq_plot$NAb)
+
+write.csv(GWAS_seq_plot,"/home/shisusanna/data_process/data/GWAS_seq_plot.csv")
+
+```
+
+
+```{r}
+GWAS_seq_plot <- read.csv("/home/shisusanna/data_process/data/GWAS_seq_plot.csv")
+library("ggplot2")
+library("ggpmisc")
+library("ggsci")
+library("gridExtra")
+library("ggbeeswarm")
+library("dplyr")
+```
+
+
+```{r fig.width= 15,fig.height= 10}
+ggplot(GWAS_seq_plot, aes( x =NAb))+
+  geom_histogram(aes(y = stat(density),)) +
+  geom_density(color = "#6baed6", size = 1)
+```
+## histogram of NAb
+
+
+```{r fig.width= 15,fig.height= 10}
+ggplot(GWAS_seq_plot, aes( x =inter_dose, y = NAb ) )+
+  theme_minimal()+
+  geom_point(size = 2) +
+  geom_jitter(width = 0.5, height = 0.5)+
+  geom_point(shape=21,colour="black",fill="#FFCC33") +
+  geom_abline(intercept = log2(2), slope = 0, lty = 2,color ="#999999")+
+  stat_smooth(method = lm, formula = y~x,level = 0.95,color ="#663399")+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label=paste(..eq.label..,..adj.rr.label..,..p.value.label..,sep = "~~~~")),formula = y~x,parse=T,size=4)+
+  xlab("两剂间隔（天）")+
+  ggtitle("SARS-CoV-2 Neutralizing Antibody")
+
+```
+## correlation between NAb and inter_dose
+
+
+```{r fig.width= 15,fig.height= 10}
+install.packages("viridisLite")
+library(viridis)
+install.packages
+library(ggpointdensity)
+library("ggpubr")
+
+ggplot(GWAS_seq_plot, mapping = aes(x =inter_dose, y = log2(NAb))) +
+  geom_pointdensity() +
+  scale_color_viridis(option = "C") +
+  theme_classic()+
+  stat_smooth(method = lm, formula = y~x,color = "#756bb1", fill = "#cbc9e2")+
+  stat_poly_eq(aes(label=paste(..eq.label..,..adj.rr.label..,..p.value.label..,sep = "~~~~")),formula = y~x,parse=T,size=4,label.y = "bottom", label.x = "right")+
+  stat_cor(label.y=7.5,label.x=24,size=4)
+
+```
+## pointdensity of inter_dose and log2(NAb)
+
+
+
+```{r fig.width= 15,fig.height= 10}
+library("ggpubr")
+GWAS_seq_plot$NAbpass <- factor(GWAS_seq_plot$NAbpass,levels = c("Negative","Positive"))
+table(GWAS_seq_plot$NAbpass)
+
+ggplot(GWAS_seq_plot, aes( x =inter_time, y = NAb ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label=..eq.label..),formula = y~x,parse=T,size=4)+
+  stat_cor(label.y=144,label.x=23,size=4)
+ 
+```
+## correlation between NAb and inter_time
+
+
+```{r fig.width= 15,fig.height= 10 }
+cor=round(cor(GWAS_seq_plot$inter_time,GWAS_seq_plot$NAb),2)
+
+ggplot(GWAS_seq_plot, aes( x =inter_time, y = log2(NAb) ) )+
+  geom_point(position = position_jitter(width = 0.5, height = 0.06),size = 2) + 
+  theme_minimal()+
+  geom_quasirandom(position = "quasirandom")+
+  stat_smooth(method = lm, formula = y~x)+
+  xlab("Days since 2rd dose")+
+  ggtitle("SARS-CoV-2 Neutralizing Antibody")+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label=paste("italic(r)~`=`~",cor,sep = "")),formula = y~x,parse=T,size=5,label.x = "right",label.y = "top")+
+  stat_fit_glance(method = "lm", method.args = list(formula = y~x),label.x = "right",label.y = 0.02,aes(label = paste("italic(P)*\"-value = \"*",signif(..p.value.., digits = 2), sep = "")), size = 5,parse = TRUE)
+  
+
+```
+## scatter plot of inter_time and log2(NAb) with cor
+
+
+
+```{r fig.width= 15,fig.height= 10}
+ggplot(GWAS_seq_plot, aes( x =age, y = NAb ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label=..eq.label..),formula = y~x,parse=T,size=3)+
+  stat_cor(label.y=145,label.x=50,size=3)
+ 
+```
+## scatter plot of age and log2(NAb) with cor
+
+
+```{r fig.width= 15,fig.height= 10 }
+colnames(GWAS_seq_plot)
+
+ggplot(GWAS_seq_plot, aes( x =BMI, y = log2(NAb) ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=6.5,label.x=35,size=3)
+
+
+ggplot(GWAS_seq_plot, aes( x =BMI, y = log2(NAb) ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=6.5,label.x=35,size=3)+
+  facet_grid(vars(agec),vars(sex))
+```
+## correlation between NAb and BMI(facet with sex and age)
+
+
+```{r fig.width= 15,fig.height= 10}
+colnames(GWAS_seq_plot)
+
+ggplot(GWAS_seq_plot, aes( x =weight, y = log2(NAb) ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  stat_cor(label.y=7,label.x=88,size=3)
+
+
+ggplot(GWAS_seq_plot, aes( x =weight, y = log2(NAb) ) )+
+  geom_point(size = 3, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size = 3, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()+
+  stat_smooth(method = lm, formula = y~x,color = "#003366",size=0.8)+
+  theme(text = element_text( color = "black",size = 20), plot.title = element_text(hjust = 0.5) )+
+  stat_poly_eq(aes(label = paste(..rr.label..)), formula = y~x, parse = TRUE, size = 3)+
+  facet_grid(vars(agec),vars(sex))+
+  stat_cor(label.y=7,label.x=88,size=3)
+```
+## correlation between NAb and weight(facet with sex and age)
+
+
+```{r fig.width= 15,fig.height= 10}
+GWAS_seq_plot1 <- GWAS_seq_plot[-which(is.na(GWAS_seq_plot$Vaccines)),]
+
+ggplot(GWAS_seq_plot1, aes( x =Vaccines, y = log2(NAb) ) )+
+  geom_boxplot(aes(group = Vaccines),size=2,alpha=0.8)+
+  geom_point(size =2, aes(fill =NAbpass),color = "black",pch=21) +
+  geom_jitter(size =2, aes(fill =NAbpass),color = "black",pch=21)+
+  scale_fill_aaas()+
+  theme_minimal()
+
+```
